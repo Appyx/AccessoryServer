@@ -1,0 +1,21 @@
+{
+  "name": "hap-server",
+  "version": "1.0.0",
+  "description": "HomeKit Accessory Protocol Server",
+  "main": "main.js",
+  "scripts": {
+    "start": "node out/main.js"
+  },
+  "author": "Robert Gstöttner",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@types/express": "^4.0.34",
+    "@types/node": "^6.0.56",
+    "body-parser": "^1.16.0",
+    "express": "^4.14.0",
+    "hap-nodejs": "^0.4.21",
+    "serialport": "^4.0.7",
+    "socket.io": "^1.7.2",
+    "typescript": "^2.1.4"
+  }
+}

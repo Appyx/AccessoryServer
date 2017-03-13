@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "out/",
+    "sourceMap": false,
+    "alwaysStrict": true
+  },
+  "include": [
+    "AppConfig.ts",
+    "main.ts",
+    "Server/**/*"
+  ]
+}

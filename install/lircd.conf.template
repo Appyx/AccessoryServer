@@ -1,0 +1,6 @@
+begin remote
+name generic-remote
+flags RAW_CODES
+begin raw_codes
+end raw_codes
+end remote
