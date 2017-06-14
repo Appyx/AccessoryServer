@@ -1,4 +1,3 @@
-import {spawnSync} from "child_process";
 import * as fs from "fs";
 import {Signal} from "./Signal";
 import {Log} from "../Log";
@@ -16,8 +15,7 @@ export class SignalDatabase {
 
     private signals: Signal[];
 
-    //These are the values contain alway the most recent data (if not the WaitAgain-request)
-    private lircBackup: string;
+    //These are the values contain always the most recent data (if not the WaitAgain-request)
     private jsonBackup: any;
 
 
@@ -83,26 +81,17 @@ export class SignalDatabase {
         if (backupMode === false) {
             //make backup for later
             this.jsonBackup = this.readJson();
-            this.lircBackup = this.readLircConfig();
             if (this.jsonBackup === undefined) {
                 Log.error(this, "reading json failed");
             }
-            if (this.lircBackup === undefined) {
-                Log.error(this, "reading lirc failed");
-            }
+
         } else {
             Log.info(this, "using backupmode");
-            if (this.lircBackup === undefined || this.jsonBackup === undefined) {
+            if (this.jsonBackup === undefined) {
                 Log.error(this, "no backups defined");
             }
         }
         //always use backup value (if backupmode is true there will be the old value)
-
-        if (signal.type === "IR") {
-            this.writeLircConfig(this.lircBackup, signal);
-        }
-
-        signal.dataExtension = undefined; //we don't want to save this useless huge amount of data
 
         this.writeJson(this.jsonBackup, signal);
 
@@ -145,28 +134,6 @@ export class SignalDatabase {
     }
 
     /**
-     * Takes the old file-content, appends the new values and writes the new content, including the new signal, to the disk.
-     * @param oldContent
-     * @param signal
-     */
-    private writeLircConfig(oldContent: string, signal: Signal) {
-        let pos = oldContent.lastIndexOf("end raw_codes");
-        let content = oldContent.substring(0, pos) + "name " + signal.data + '\n' + signal.dataExtension + '\n' + oldContent.substring(pos);
-
-        fs.writeFileSync("/etc/lirc/lircd.conf", content);
-
-        spawnSync("/etc/init.d/lirc", ["restart"]);
-    }
-
-    /**
-     * Reads the lirc-file.
-     * @returns {string}
-     */
-    private readLircConfig(): string {
-        return fs.readFileSync("/etc/lirc/lircd.conf", "utf8");
-    }
-
-    /**
      * Returns the right signal for a provided id.
      *
      * @param id
@@ -181,7 +148,17 @@ export class SignalDatabase {
         Log.error(this, "unknown signal: id=" + id);
     }
 
-    public removeSignal(id: number) {
-        //TODO: parse lirc config or json or both and remove entry (for lirc use 'sed' with dataExtension)
+    public clean(used: number[]) {
+        let removed = [];
+        for (let sig of this.signals) {
+            if (used.indexOf(sig.id) < 0) {
+                removed.push(sig);
+            }
+        }
+        for (let sig of removed) {
+            this.signals.splice(this.signals.indexOf(sig), 1);
+
+        }
+        fs.writeFileSync('io.json', JSON.stringify(this.signals));
     }
 }

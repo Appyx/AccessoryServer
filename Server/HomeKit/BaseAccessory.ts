@@ -35,13 +35,13 @@ export abstract class BaseAccessory {
             this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.Name, this.data.name);
         }
         if (this.data.manufacturer !== undefined) {
-            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.Manufacturer, this.data.manufacturer);
+            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.Manufacturer, "Simulated Accessory Inc.");
         }
         if (this.data.model !== undefined) {
-            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.Model, this.data.model);
+            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.Model, "Level " + this.data.usedStates + " Accessory");
         }
         if (this.data.serial !== undefined) {
-            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.SerialNumber, this.data.serial);
+            this.hapAccessory.getService(hap.Service.AccessoryInformation).setCharacteristic(hap.Characteristic.SerialNumber, "Port: " + this.data.port);
         }
     }
 

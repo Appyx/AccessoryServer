@@ -1,7 +1,7 @@
 export namespace AppConfig {
 
     export let ServerPort = 8888;
-    export let AccessoryStartingPort = ServerPort + 10; //can be any port
+    export let AccessoryStartingPort = ServerPort + 1000; //can be any port
     export let AccessoryStateSavingDelay = 1000 * 7; // 7 seconds
     export let LogLevel = 4; //no log = 0, complete log = 4
 

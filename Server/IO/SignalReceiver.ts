@@ -4,6 +4,7 @@ import {Log} from "../Log";
 import {AppConfig} from "../../AppConfig";
 import {SocketManager} from "./SocketManager";
 
+
 /**
  * This class is responsible for receiving signals through GPIO and IP.
  */
@@ -44,18 +45,18 @@ export class SignalReceiver {
      */
     private receiveIR(): void {
         let irData: string = undefined;
-        this.mode2 = spawn('mode2', ['-d', this.lircDevice, '-m']);
+
+        this.mode2 = spawn('cat', ["/dev/gpio-reflect"]);
 
         this.mode2.stdout.on('data', (data) => {
             if (irData === undefined) {
-                irData = "";
-                setTimeout(() => {
-                    let sig: Signal = this.prepareSignal(irData, "IR");
-                    this.killReceiver(sig);
-                }, 1000);
+                irData = data.toString();
+                this.killReceiver(new Signal("IR", irData));
             }
-            irData += data.toString();
         });
+        this.mode2.stderr.on("data", (data) => {
+            Log.warn(this, "recording failed");
+        })
     }
 
     /**
@@ -63,32 +64,14 @@ export class SignalReceiver {
      */
     private receiveRF(): void {
         let rfData: string = undefined;
-        this.sniffer = spawn('./sniffer');
+        this.sniffer = spawn('../bin/sniffer');
 
         this.sniffer.stdout.on('data', (data) => {
             if (rfData === undefined) {
                 rfData = data.toString();
-                let sig: Signal = this.prepareSignal(rfData, "RF");
-                this.killReceiver(sig);
+                this.killReceiver(new Signal("RF", rfData));
             }
         });
-    }
-
-    /**
-     * Helper to prepare the data provided by the external C++ programs.
-     * @param data The raw data recorded.
-     * @param type The type of signal.
-     * @returns {Signal}
-     */
-    private prepareSignal(data: string, type: string): Signal {
-        switch (type) {
-            case "IR":
-                data = data.replace(/^.*[\r?\n]*.*[0-9]+[\r?\n]*/, "");
-                let name = new Date().getTime().toString(16);
-                return new Signal(type, name, data);
-            case "RF":
-                return new Signal(type, data);
-        }
     }
 
     /**

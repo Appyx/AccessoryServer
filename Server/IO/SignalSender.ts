@@ -2,6 +2,7 @@ import {spawnSync} from "child_process";
 import {Signal} from "./Signal";
 import {Log} from "../Log";
 import {SocketManager} from "./SocketManager";
+import * as fs from "fs";
 
 /**
  * Responsible for sending signals.
@@ -21,10 +22,10 @@ export class SignalSender {
     public send(signal: Signal): void {
         switch (signal.type) {
             case "IR":
-                spawnSync("irsend", ["send_once", "generic-remote", signal.data]);
+                fs.writeFileSync('/dev/gpio-reflect', signal.data);
                 break;
             case "RF":
-                spawnSync("./codesend", [signal.data]);
+                spawnSync("../bin/codesend", [signal.data]);
                 break;
             case "IP":
                 this.socketManager.broadcast({data: signal.data}); //send to all (the clients will handle the data overflow)

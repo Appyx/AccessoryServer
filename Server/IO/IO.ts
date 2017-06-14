@@ -118,8 +118,8 @@ export namespace IO {
         sender.socketManager.add(socketClient);
     }
 
-    export function clean(listOfIDs: number[]) {
-        //TODO: delete this ids from io.json and lircd.conf
+    export function clean(used: number[]) {
+        database.clean(used);
     }
 
 

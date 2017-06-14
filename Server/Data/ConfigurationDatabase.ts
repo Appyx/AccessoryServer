@@ -5,6 +5,7 @@ import * as fs from "fs";
 import {AccessoryConfiguration} from "./AccessoryConfiguration";
 import {Log} from "../Log";
 import {AppConfig} from "../../AppConfig";
+import {Remote} from "./Remote";
 
 
 /**
@@ -17,7 +18,7 @@ import {AppConfig} from "../../AppConfig";
 export namespace ConfigurationDatabase {
 
     export let accessories: AccessoryConfiguration[] = [];
-    export let remotes;
+    export let remotes: Remote[] = [];
 
     let timeOutHandler: any;
     const ACCESSORIES_FILE = "accessories.json";
@@ -167,7 +168,7 @@ export namespace ConfigurationDatabase {
 
     /**
      * Tries to clean the database.
-     * If there are missing accessories thy will be removed.
+     * If there are missing accessories they will be removed.
      * (Does not modify data on disk)
      * @param newJson A json object to compare against
      * @returns {AccessoryConfiguration[]} The removed accessories
@@ -177,7 +178,7 @@ export namespace ConfigurationDatabase {
         for (let config of accessories) {
             let contains = false;
             for (let acc of newJson) {
-                if (config.name == acc.name) {
+                if (config.name === acc.name) {
                     contains = true;
                 }
             }
@@ -189,6 +190,53 @@ export namespace ConfigurationDatabase {
             accessories.splice(accessories.indexOf(config), 1);
         }
         return removed;
+    }
+
+    export function getUsedSignals(): number[] {
+        let tmpRemotes = JSON.parse(JSON.stringify(remotes));
+
+        for (let acc of accessories) {
+            tmpRemotes.push(acc.firstStateOnSignals);
+            tmpRemotes.push(acc.firstStateOffSignals);
+            tmpRemotes.push(acc.secondStateIncreaseSignals);
+            tmpRemotes.push(acc.secondStateDecreaseSignals);
+            tmpRemotes.push(acc.thirdStateOnSignals);
+            tmpRemotes.push(acc.thirdStateOffSignals);
+        }
+
+        let signals: number[] = [];
+        for (let remote of tmpRemotes) {
+            if (remote !== undefined && remote.commands !== undefined) {
+                for (let command of remote.commands) {
+                    signals.push(command.signal);
+                    if (command.commands !== undefined) {
+                        for (let subcommand of command.commands) {
+                            signals.push(subcommand.signal);
+                        }
+                    }
+                }
+            }
+        }
+
+        let seen = {};
+        signals = signals.filter(function (item) {
+
+            if (seen.hasOwnProperty("" + item)) {
+                return false;
+            } else {
+                seen["" + item] = true;
+            }
+            if (item < 0) {
+                return false;
+            }
+            if (item === undefined) {
+                return false;
+            }
+            return true;
+        });
+
+        Log.info(this, signals.toString());
+        return signals;
     }
 
 }

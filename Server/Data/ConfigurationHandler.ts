@@ -14,6 +14,7 @@ import {AccessoryType} from "../HomeKit/AccessoryType";
 import {DigitalSensorAccessory} from "../HomeKit/DigitalSensorAccessory";
 import {AnalogSensorAccessory} from "../HomeKit/AnalogSensorAccessory";
 import {Log} from "../Log";
+import {IO} from "../IO/IO";
 
 /**
  * This namespace handles all ACP-data (Accessory Configuration Protocol).
@@ -70,6 +71,7 @@ export namespace ConfigurationHandler {
                     unpublishAccessory(getPublishedAccessory(acc.name));
                 }
                 ConfigurationDatabase.persistData();
+                IO.clean(ConfigurationDatabase.getUsedSignals());
 
                 if (typeof (callback) === "function") {
                     callback({text: "ACK"});
