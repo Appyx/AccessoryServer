@@ -1,3 +1,6 @@
+
+> Note: This repository is not maintained anymore because Home Assistant can be used to achieve the same goal.
+
 # What is it?
 
 The goal of this project is to replace all remote controls with HomeKit Accessories. 
